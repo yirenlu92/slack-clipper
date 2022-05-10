@@ -18,7 +18,7 @@ app = Flask(__name__)
 cred = credentials.Certificate('slack-clipper-credentials.json')
 firebase_admin.initialize_app(cred)
 
-SLACK_BOT_USER_OAUTH2 = os.getenv('SLACK_BOT_USER_OAUTH2')
+SLACK_BOT_USER_OAUTH2 = os.getenv('SLACK_BOT_TOKEN')
 
 
 def get_and_clip_messages_from_conversation(headers, channel_id, user_info_dict, requesting_user_id):
