@@ -9,11 +9,22 @@ app = App(
 def get_conversation_thread(client, channel, ts):
     replies = client.conversations_replies(channel=channel, ts=ts)
     messages = list()
+    users = {}
     for message in replies["messages"]:
+        user_id = message["user"]
+        if user_id not in users:
+            user_info = client.users_info(user=user_id)
+            users[user_id] = {
+                "name": user_info["user"]["name"],
+                "profile_picture": user_info["user"]["profile"]["image_48"]
+                }
+        
         messages.append({
             "text": message["text"],
-            "user": message["user"]
+            "name": users[user_id]["name"],
+            "profile_picture": users[user_id]["profile_picture"]
             })
+        
     return messages
 
 @app.shortcut("clip_markdown")
