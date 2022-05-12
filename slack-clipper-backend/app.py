@@ -1,10 +1,22 @@
 import os
+from uuid import uuid4
 from slack_bolt import App
+import firebase_admin
+from firebase_admin import credentials, firestore, storage
 
+# Slack App
 app = App(
     token=os.environ.get("SLACK_BOT_TOKEN"),
     signing_secret=os.environ.get("SLACK_SIGNING_SECRET")
 )
+
+# Firebase bucket
+cred = credentials.Certificate('slack-clipper-credentials.json')
+firebase_admin.initialize_app(cred, {
+    'storageBucket': 'slack-clipper-3cd18.appspot.com'
+})
+db = firestore.client()
+bucket = storage.bucket()
 
 def get_conversation_thread(client, channel, ts):
     replies = client.conversations_replies(channel=channel, ts=ts)
@@ -67,6 +79,21 @@ def get_markdown_text(conversation_thread):
     return markdown_text
 
 
+def upload_markdown_file_to_firebase(markdown_text):
+    print("Uploading to Firebase...")
+    filename = f"{uuid4()}.md"
+    with open(filename, "w") as f:
+        f.write(markdown_text)
+    
+    blob = bucket.blob(filename)
+    blob.metadata = {"firebaseStorageDownloadTokens": uuid4()}
+    outfile=os.path.abspath(filename)
+    blob.upload_from_filename(outfile)
+    
+    os.remove(filename)
+    print(f"File uploaded successfully: {filename}")
+
+
 @app.shortcut("clip_markdown")
 def clip_markdown(ack, shortcut, client):
     ack()
@@ -78,11 +105,8 @@ def clip_markdown(ack, shortcut, client):
     print(f"[CLIP] channel={channel} ts={ts} thread-title='{title}'")
     
     conversation_thread = get_conversation_thread(client, channel, ts)
-    # print("conversation_thread", conversation_thread)
     markdown_text = get_markdown_text(conversation_thread)
-    print(markdown_text)
-    with open("test.md", "w") as f:
-        f.write(markdown_text)
+    upload_markdown_file_to_firebase(markdown_text)
 
 
 # Start your app
