@@ -16,7 +16,7 @@ def get_conversation_thread(client, channel, ts):
             user_info = client.users_info(user=user_id)
             users[user_id] = {
                 "name": user_info["user"]["name"],
-                "profile_picture": user_info["user"]["profile"]["image_48"]
+                "profile_picture": user_info["user"]["profile"]["image_24"]
                 }
         
         messages.append({
@@ -26,6 +26,46 @@ def get_conversation_thread(client, channel, ts):
             })
         
     return messages
+
+def make_markdown_message(name, profile_picture, text):
+    return f"""
+<div style="-webkit-column-count: 2; -moz-column-count: 2; column-count: 2;">
+    <div style="display: inline-block;">
+        <img src="{profile_picture}" alt="{name}">
+    </div>
+    <div style="display: inline-block;">
+        <strong>{name}</strong>
+    </div>
+</div>
+
+{text}
+        
+        """
+
+def get_markdown_text(conversation_thread):
+    markdown_text = ""
+
+    if len(conversation_thread) > 0:
+        message = conversation_thread[0]
+        markdown_text += make_markdown_message(
+            message["name"],
+            message["profile_picture"],
+            message["text"]
+            )
+    
+    markdown_text += """
+---
+    """
+
+    for message in conversation_thread[1:]:
+        markdown_text += make_markdown_message(
+            message["name"],
+            message["profile_picture"],
+            message["text"]
+            )
+    
+    return markdown_text
+
 
 @app.shortcut("clip_markdown")
 def clip_markdown(ack, shortcut, client):
@@ -38,7 +78,11 @@ def clip_markdown(ack, shortcut, client):
     print(f"[CLIP] channel={channel} ts={ts} thread-title='{title}'")
     
     conversation_thread = get_conversation_thread(client, channel, ts)
-    print("conversation_thread", conversation_thread)
+    # print("conversation_thread", conversation_thread)
+    markdown_text = get_markdown_text(conversation_thread)
+    print(markdown_text)
+    with open("test.md", "w") as f:
+        f.write(markdown_text)
 
 
 # Start your app
