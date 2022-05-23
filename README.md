@@ -34,7 +34,7 @@ export SLACK_BOT_TOKEN=<bot_user_oauth_token>
 Go to https://api.slack.com/apps/A03EH4WGB9C/general? and copy the Signing secret, then run the command below:
 
 ```sh
-export SLACK
+export SLACK_SIGNING_SECRET=<slack_signing_secret>
 ```
 
 You can also put these in a .bashrc file so that you don't have to re-export them every time you open up a terminal window.
