@@ -31,6 +31,14 @@ Go to https://api.slack.com/apps/A03EH4WGB9C  >> OAuth & Permissions and copy th
 export SLACK_BOT_TOKEN=<bot_user_oauth_token>
 ```
 
+Go to https://api.slack.com/apps/A03EH4WGB9C/general? and copy the Signing secret, then run the command below:
+
+```sh
+export SLACK
+```
+
+You can also put these in a .bashrc file so that you don't have to re-export them every time you open up a terminal window.
+
 ## start backend
 
 ```sh
@@ -65,9 +73,25 @@ Connections                   ttl     opn     rt1     rt5     p50     p90
 
 Cooy the forwarding address (in this case http://1ff9-205-220-128-103.ngrok.io)
 
-3. Go to https://api.slack.com/apps/A03EH4WGB9C/interactive-messages and replace the first part of the Request URL with the forwarding address you copied above
+3. Go to https://api.slack.com/apps/A03EH4WGB9C/interactive-messages and replace the first part of the Request URL with the forwarding address you copied above.
 
-3. Go to Slack channel #general in Frindle Slack and see if you can clip something
+4. Go to Slack channel #general in Frindle Slack and see if you can clip something
+
+5. In the terminal (in the same window where the server is running), you should see something like this:
+
+```console
+127.0.0.1 - - [23/May/2022 11:12:43] "POST /slack/events HTTP/1.1" 200 -
+Uploading to Firebase...
+File uploaded successfully: ffdd42bb-c1db-4ee0-8a7e-792a7c17aa3b.md
+```
+
+6. Go to Firebase >> Slack Clipper >> Storage, and you should see the markdown file
+
+Download the markdown file and open it up in VScode to see the preview
+
+
+
+
 
 
 
