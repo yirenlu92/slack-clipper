@@ -25,6 +25,7 @@ def get_conversation_thread(client, channel, ts):
     users = {}
     for message in replies["messages"]:
         print(message)
+        print("\n")
         user_id = message["user"]
         if user_id not in users:
             user_info = client.users_info(user=user_id)
@@ -36,37 +37,49 @@ def get_conversation_thread(client, channel, ts):
         messages.append({
             "text": message["text"],
             "name": users[user_id]["name"],
-            "profile_picture": users[user_id]["profile_picture"],
-            "files": message["files"]
+            "profile_picture": users[user_id]["profile_picture"]
         })
+
+        if "files" in message:
+            permalinksToAttachments = ""
+            for file in message["files"]:
+                if not file['public_url_shared']:
+                    app.client.files_sharedPublicURL(file=file["id"], token=os.environ.get("USER_TOKEN"))
+                permalinksToAttachments += '<a href="'+file["permalink_public"]+'">Download</a><div>'
+            messages.append({
+                "text": "<i>Attachments:</i> \n"+permalinksToAttachments,
+                "name": users[user_id]["name"],
+                "profile_picture": users[user_id]["profile_picture"]
+            })
 
     return messages
 
 
-def make_markdown_message(name, profile_picture, text, files):
-    returnString = f"""
+def make_markdown_message(name, profile_picture, text):
+
+    while "```" in text:
+        text=text.replace("```", "<code>", 1)
+        text = text.replace("```", "</code>", 1)
+    text=text.replace("\n", "<div>")
+
+    return f"""
 <div style="-webkit-column-count: 2; -moz-column-count: 2; column-count: 2;">
     <div style="display: inline-block;">
         <img src="{profile_picture}" alt="{name}">
     </div>
     <div style="display: inline-block;">
             <strong>{name}</strong>   
-        </div>
     </div>
-    {text}
+</div>
+
+<div>
+{text}
+</div>
             
 """
-    for file in files:
-        returnString += "\n"
-        returnString += f"""<img src="{file["permalink"]}">"""
-
-    returnString+="</div>"
-
-    return returnString
 
 
 def get_markdown_text(conversation_thread):
-
 
     markdown_text = ""
 
@@ -76,7 +89,6 @@ def get_markdown_text(conversation_thread):
             message["name"],
             message["profile_picture"],
             message["text"],
-            message["files"]
         )
 
     markdown_text += """
@@ -112,7 +124,6 @@ def upload_markdown_file_to_firebase(markdown_text, userid, channelid):
         text=blob.public_url
         # You could also use a blocks[] array to send richer content
     )
-    print("tried to send a message")
 
     os.remove(filename)
     print(f"File uploaded successfully: {filename}")
@@ -120,6 +131,8 @@ def upload_markdown_file_to_firebase(markdown_text, userid, channelid):
 
 @app.shortcut("clip_markdown")
 def clip_markdown(ack, shortcut, client):
+
+    print("clipping markdown")
     ack()
 
     channel = shortcut["channel"]["id"]
