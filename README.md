@@ -31,6 +31,12 @@ Go to https://api.slack.com/apps/A03EH4WGB9C  >> OAuth & Permissions and copy th
 export SLACK_BOT_TOKEN=<bot_user_oauth_token>
 ```
 
+Go to https://api.slack.com/apps/A03EH4WGB9C  >> OAuth & Permissions and copy the User OAuth Token, then run the command below:
+
+```sh
+export USER_TOKEN=<user_oauth_token>
+```
+
 Go to https://api.slack.com/apps/A03EH4WGB9C/general? and copy the Signing secret, then run the command below:
 
 ```sh
