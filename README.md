@@ -73,7 +73,7 @@ Connections                   ttl     opn     rt1     rt5     p50     p90
 
 Cooy the forwarding address (in this case http://1ff9-205-220-128-103.ngrok.io)
 
-3. Go to https://api.slack.com/apps/A03EH4WGB9C/interactive-messages and replace the first part of the Request URL with the forwarding address you copied above.
+3. Go to https://api.slack.com/apps/A03EH4WGB9C/interactive-messages and replace the first part of the Request URL with the forwarding address you copied above. After the ngrok URL put /slack/events. Your final Request URL should now look like http://1ff9-205-220-128-103.ngrok.io/slack/events
 
 4. Go to Slack channel #general in Frindle Slack and see if you can clip something
 
