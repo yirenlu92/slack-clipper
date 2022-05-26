@@ -24,8 +24,6 @@ def get_conversation_thread(client, channel, ts):
     messages = list()
     users = {}
     for message in replies["messages"]:
-        print(message)
-        print("\n")
         user_id = message["user"]
         if user_id not in users:
             user_info = client.users_info(user=user_id)
@@ -45,7 +43,7 @@ def get_conversation_thread(client, channel, ts):
             for file in message["files"]:
                 if not file['public_url_shared']:
                     app.client.files_sharedPublicURL(file=file["id"], token=os.environ.get("USER_TOKEN"))
-                permalinksToAttachments += '<a href="'+file["permalink_public"]+'">Download</a><div>'
+                permalinksToAttachments = f'{permalinksToAttachments}<a href="{file["permalink_public"]}">Download</a><p>'
             messages.append({
                 "text": "<i>Attachments:</i> \n"+permalinksToAttachments,
                 "name": users[user_id]["name"],
@@ -58,9 +56,9 @@ def get_conversation_thread(client, channel, ts):
 def make_markdown_message(name, profile_picture, text):
 
     while "```" in text:
-        text=text.replace("```", "<code>", 1)
+        text = text.replace("```", "<code>", 1)
         text = text.replace("```", "</code>", 1)
-    text=text.replace("\n", "<div>")
+    text = text.replace("\n", "<p>")
 
     return f"""
 <div style="-webkit-column-count: 2; -moz-column-count: 2; column-count: 2;">
