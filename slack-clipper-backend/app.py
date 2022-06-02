@@ -28,7 +28,7 @@ def get_conversation_thread(client, channel, ts):
         if user_id not in users:
             user_info = client.users_info(user=user_id)
             users[user_id] = {
-                "name": user_info["user"]["name"],
+                "name": user_info["user"]["profile"]["real_name_normalized"],
                 "profile_picture": user_info["user"]["profile"]["image_24"]
             }
 
@@ -46,8 +46,8 @@ def get_conversation_thread(client, channel, ts):
                 permalinksToAttachments = f'{permalinksToAttachments}<a href="{file["permalink_public"]}">Download</a><p>'
             messages.append({
                 "text": "<i>Attachments:</i> \n"+permalinksToAttachments,
-                "name": users[user_id]["name"],
-                "profile_picture": users[user_id]["profile_picture"]
+                "name": "",
+                "profile_picture": "attachment.png"
             })
 
     return messages
@@ -90,7 +90,7 @@ def get_markdown_text(conversation_thread):
         )
 
     markdown_text += """
-    ---
+---
         """
 
     for message in conversation_thread[1:]:
