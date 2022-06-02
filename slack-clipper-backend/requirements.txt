@@ -36,7 +36,7 @@ pyparsing==3.0.8
 requests==2.27.1
 rsa==4.8
 six==1.16.0
-slack-bolt=1.14.0
+slack-bolt==1.14.0
 slack-sdk
 soupsieve==2.3.2.post1
 uritemplate==4.1.1
