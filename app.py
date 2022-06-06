@@ -44,7 +44,7 @@ def get_conversation_thread(client, channel, ts):
                 if not file['public_url_shared']:
                     app.client.files_sharedPublicURL(file=file["id"], token=os.environ.get("USER_TOKEN"))
                 if file["filetype"]=="png" or file["filetype"]=="jpg" or file["filetype"]=="jpeg": #file is image
-                    permalinksToAttachments = f'{permalinksToAttachments}\n<br>![Download]({file["url_private_download"]}?pub_secret={file["permalink_public"][-10:]})'
+                    permalinksToAttachments = f'{permalinksToAttachments}\n<br>![Download]({file["url_private_download"]}?pub_secret={file["permalink_public"].split("-")[-1]})'
                 else: #file is not image
                     print(file)
                     permalinksToAttachments = f'{permalinksToAttachments}\n<br>[Download]({file["permalink_public"]})'
