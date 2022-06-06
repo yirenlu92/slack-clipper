@@ -36,7 +36,6 @@ def get_conversation_thread(client, channel, ts):
         messages.append({
             "text": message["text"],
             "name": users[user_id]["name"],
-            "profile_picture": users[user_id]["profile_picture"]
         })
 
         if "files" in message:
@@ -44,36 +43,18 @@ def get_conversation_thread(client, channel, ts):
             for file in message["files"]:
                 if not file['public_url_shared']:
                     app.client.files_sharedPublicURL(file=file["id"], token=os.environ.get("USER_TOKEN"))
-                permalinksToAttachments = f'{permalinksToAttachments}<a href="{file["permalink_public"]}">Download</a><p>'
+                permalinksToAttachments = f'{permalinksToAttachments}\n<br>[Download]({file["permalink_public"]})'
             messages.append({
-                "text": "<i>Attachments:</i> \n"+permalinksToAttachments,
-                "name": users[user_id]["name"],
-                "profile_picture": users[user_id]["profile_picture"]
+                "text": "*Attachments:* <br>"+permalinksToAttachments,
+                "name": "",
             })
 
     return messages
 
 
-def make_markdown_message(name, profile_picture, text):
-
-    while "```" in text:
-        text = text.replace("```", "<code>", 1)
-        text = text.replace("```", "</code>", 1)
-    text = text.replace("\n", "<p>")
-
-    return f"""
-<div style="-webkit-column-count: 2; -moz-column-count: 2; column-count: 2;">
-    <div style="display: inline-block;">
-        <img src="{profile_picture}" alt="{name}">
-    </div>
-    <div style="display: inline-block;">
-            <strong>{name}</strong>   
-    </div>
-</div>
-
-<div>
+def make_markdown_message(name, text):
+    return f"""## {name}
 {text}
-</div>
             
 """
 
@@ -86,18 +67,15 @@ def get_markdown_text(conversation_thread):
         message = conversation_thread[0]
         markdown_text += make_markdown_message(
             message["name"],
-            message["profile_picture"],
             message["text"],
         )
 
-    markdown_text += """
-    ---
-        """
+    markdown_text += """---
+"""
 
     for message in conversation_thread[1:]:
         markdown_text += make_markdown_message(
             message["name"],
-            message["profile_picture"],
             message["text"]
         )
 
