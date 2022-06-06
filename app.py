@@ -1,4 +1,5 @@
 import os
+import json
 from uuid import uuid4
 from slack_bolt import App
 from slack_bolt.adapter.flask import SlackRequestHandler
@@ -41,6 +42,7 @@ def get_conversation_thread(client, channel, ts):
         if "files" in message:
             permalinksToAttachments = ""
             for file in message["files"]:
+                print(json.dumps(file, indent=4))
                 if not file['public_url_shared']:
                     app.client.files_sharedPublicURL(file=file["id"], token=os.environ.get("USER_TOKEN"))
                 permalinksToAttachments = f'{permalinksToAttachments}\n<br>[Download]({file["permalink_public"]})'
@@ -137,5 +139,5 @@ def slack_events():
 
 # Start your app
 if __name__ == "__main__":
-    app.start()
-    #port=int(os.environ.get("PORT", 3000))
+    app.start(port=int(os.environ.get("PORT", 3000)))
+    
