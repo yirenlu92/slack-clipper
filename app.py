@@ -65,9 +65,12 @@ def make_markdown_message(name, text):
         returnName = ""
     else:
         returnName = f"## {name}"
+    code_string = f"""
+```
+"""
+    text = text.replace("```", code_string)
     return f"""{returnName}
 {text}
-
 """
 
 
