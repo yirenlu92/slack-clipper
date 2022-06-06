@@ -1,4 +1,5 @@
 import os
+import json
 from uuid import uuid4
 from slack_bolt import App
 from slack_bolt.adapter.flask import SlackRequestHandler
@@ -29,52 +30,47 @@ def get_conversation_thread(client, channel, ts):
         if user_id not in users:
             user_info = client.users_info(user=user_id)
             users[user_id] = {
-                "name": user_info["user"]["profile"]["real_name_normalized"],
-                "profile_picture": user_info["user"]["profile"]["image_24"]
+                "real_name": user_info["user"]["real_name"],
             }
 
         messages.append({
             "text": message["text"],
-            "name": users[user_id]["name"],
-            "profile_picture": users[user_id]["profile_picture"]
+            "name": users[user_id]["real_name"],
         })
 
         if "files" in message:
             permalinksToAttachments = ""
             for file in message["files"]:
+                print(json.dumps(file, indent=4))
                 if not file['public_url_shared']:
-                    app.client.files_sharedPublicURL(file=file["id"], token=os.environ.get("USER_TOKEN"))
-                permalinksToAttachments = f'{permalinksToAttachments}<a href="{file["permalink_public"]}">Download</a><p>'
+                    app.client.files_sharedPublicURL(file=file["id"], token=os.environ.get("SLACK_USER_TOKEN"))
+                if file["filetype"]=="png" or file["filetype"]=="jpg" or file["filetype"]=="jpeg": #file is image
+                    # file is an image
+                    publicDirectPhotoUrl = f'{file["url_private_download"]}?pub_secret={file["permalink_public"].split("-")[-1]}'
+                    permalinksToAttachments = f'![Download]({publicDirectPhotoUrl})'
+                else: 
+                    #file is not image
+                    permalinksToAttachments = f'{permalinksToAttachments}\n<br>[Download]({file["permalink_public"]})'
             messages.append({
-                "text": "<i>Attachments:</i> \n"+permalinksToAttachments,
+                "text": f"{permalinksToAttachments}",
                 "name": "",
-                "profile_picture": "attachment.png"
             })
 
     return messages
 
 
-def make_markdown_message(name, profile_picture, text):
-
-    while "```" in text:
-        text = text.replace("```", "<code>", 1)
-        text = text.replace("```", "</code>", 1)
-    text = text.replace("\n", "<p>")
-
-    return f"""
-<div style="-webkit-column-count: 2; -moz-column-count: 2; column-count: 2;">
-    <div style="display: inline-block;">
-        <img src="{profile_picture}" alt="{name}">
-    </div>
-    <div style="display: inline-block;">
-            <strong>{name}</strong>   
-    </div>
-</div>
-
-<div>
+def make_markdown_message(name, text):
+    returnName = ""
+    if name == "":
+        returnName = ""
+    else:
+        returnName = f"## {name}"
+    code_string = f"""
+```
+"""
+    text = text.replace("```", code_string)
+    return f"""{returnName}
 {text}
-</div>
-            
 """
 
 
@@ -84,22 +80,17 @@ def get_markdown_text(conversation_thread):
 
     if len(conversation_thread) > 0:
         message = conversation_thread[0]
-        markdown_text += make_markdown_message(
+        markdown_text = make_markdown_message(
             message["name"],
-            message["profile_picture"],
             message["text"],
         )
 
     markdown_text += """
 ---
-        """
+"""
 
     for message in conversation_thread[1:]:
-        markdown_text += make_markdown_message(
-            message["name"],
-            message["profile_picture"],
-            message["text"]
-        )
+        markdown_text = f"{markdown_text}{make_markdown_message(message['name'], message['text'])}"
 
     return markdown_text
 
@@ -159,5 +150,5 @@ def slack_events():
 
 # Start your app
 if __name__ == "__main__":
-    app.start()
-    #port=int(os.environ.get("PORT", 3000))
+    app.start(port=int(os.environ.get("PORT", 3000)))
+    

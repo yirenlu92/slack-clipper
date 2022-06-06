@@ -5,7 +5,7 @@ services:
   envs:
   - key: SLACK_BOT_TOKEN
     scope: RUN_AND_BUILD_TIME
-    value: xoxb-2567515969764-3499829520867-ODXgYNAPTRgi4K3ygQ0Haxab
+    value: xoxb-2567515969764-3499829520867-m2FF9BfBS4R2PLMdyRoQqKpb
   - key: SLACK_SIGNING_SECRET
     scope: RUN_AND_BUILD_TIME
     value: f48f1c0ec46dfd27b8cb263cf677e3b5
