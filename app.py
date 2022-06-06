@@ -28,14 +28,14 @@ def get_conversation_thread(client, channel, ts):
         user_id = message["user"]
         if user_id not in users:
             user_info = client.users_info(user=user_id)
+            # print(user_info["user"])
             users[user_id] = {
-                "name": user_info["user"]["profile"]["real_name_normalized"],
-                "profile_picture": user_info["user"]["profile"]["image_24"]
+                "real_name": user_info["user"]["real_name"],
             }
 
         messages.append({
             "text": message["text"],
-            "name": users[user_id]["name"],
+            "name": users[user_id]["real_name"],
         })
 
         if "files" in message:
@@ -43,7 +43,11 @@ def get_conversation_thread(client, channel, ts):
             for file in message["files"]:
                 if not file['public_url_shared']:
                     app.client.files_sharedPublicURL(file=file["id"], token=os.environ.get("USER_TOKEN"))
-                permalinksToAttachments = f'{permalinksToAttachments}\n<br>[Download]({file["permalink_public"]})'
+                if file["filetype"]=="png" or file["filetype"]=="jpg" or file["filetype"]=="jpeg": #file is image
+                    permalinksToAttachments = f'{permalinksToAttachments}\n<br>![Download]({file["url_private_download"]}?pub_secret={file["permalink_public"][-10:]})'
+                else: #file is not image
+                    print(file)
+                    permalinksToAttachments = f'{permalinksToAttachments}\n<br>[Download]({file["permalink_public"]})'
             messages.append({
                 "text": f"*Attachments:* <br>{permalinksToAttachments}",
                 "name": "",
@@ -53,10 +57,12 @@ def get_conversation_thread(client, channel, ts):
 
 
 def make_markdown_message(name, text):
-    if name.isspace() or text.isspace():
-        return ""
+    returnName = ""
+    if name == "":
+        returnName = ""
     else:
-        return f"""## {name}
+        returnName = f"## {name}"
+    return f"""{returnName}
 {text}
 
 """
@@ -75,7 +81,7 @@ def get_markdown_text(conversation_thread):
 
     markdown_text += """
 ---
-        """
+"""
 
     for message in conversation_thread[1:]:
         markdown_text = f"{markdown_text}{make_markdown_message(message['name'], message['text'])}"
