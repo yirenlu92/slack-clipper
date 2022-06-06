@@ -29,7 +29,6 @@ def get_conversation_thread(client, channel, ts):
         user_id = message["user"]
         if user_id not in users:
             user_info = client.users_info(user=user_id)
-            # print(user_info["user"])
             users[user_id] = {
                 "real_name": user_info["user"]["real_name"],
             }
@@ -44,14 +43,16 @@ def get_conversation_thread(client, channel, ts):
             for file in message["files"]:
                 print(json.dumps(file, indent=4))
                 if not file['public_url_shared']:
-                    app.client.files_sharedPublicURL(file=file["id"], token=os.environ.get("USER_TOKEN"))
+                    app.client.files_sharedPublicURL(file=file["id"], token=os.environ.get("SLACK_USER_TOKEN"))
                 if file["filetype"]=="png" or file["filetype"]=="jpg" or file["filetype"]=="jpeg": #file is image
-                    permalinksToAttachments = f'{permalinksToAttachments}\n<br>![Download]({file["url_private_download"]}?pub_secret={file["permalink_public"].split("-")[-1]})'
-                else: #file is not image
-                    print(file)
+                    # file is an image
+                    publicDirectPhotoUrl = f'{file["url_private_download"]}?pub_secret={file["permalink_public"].split("-")[-1]}'
+                    permalinksToAttachments = f'![Download]({publicDirectPhotoUrl})'
+                else: 
+                    #file is not image
                     permalinksToAttachments = f'{permalinksToAttachments}\n<br>[Download]({file["permalink_public"]})'
             messages.append({
-                "text": f"*Attachments:* <br>{permalinksToAttachments}",
+                "text": f"{permalinksToAttachments}",
                 "name": "",
             })
 
