@@ -45,7 +45,7 @@ def get_conversation_thread(client, channel, ts):
                     app.client.files_sharedPublicURL(file=file["id"], token=os.environ.get("USER_TOKEN"))
                 permalinksToAttachments = f'{permalinksToAttachments}\n<br>[Download]({file["permalink_public"]})'
             messages.append({
-                "text": "*Attachments:* <br>"+permalinksToAttachments,
+                "text": f"*Attachments:* <br>{permalinksToAttachments}",
                 "name": "",
             })
 
@@ -53,9 +53,12 @@ def get_conversation_thread(client, channel, ts):
 
 
 def make_markdown_message(name, text):
-    return f"""## {name}
+    if name.isspace() or text.isspace():
+        return ""
+    else:
+        return f"""## {name}
 {text}
-            
+
 """
 
 
@@ -65,14 +68,17 @@ def get_markdown_text(conversation_thread):
 
     if len(conversation_thread) > 0:
         message = conversation_thread[0]
-        markdown_text = f'{markdown_text}{(message["name"],message["text"])}'
+        markdown_text = make_markdown_message(
+            message["name"],
+            message["text"],
+        )
 
     markdown_text += """
 ---
         """
 
     for message in conversation_thread[1:]:
-        markdown_text = f'{markdown_text}{(message["name"],message["text"])}'
+        markdown_text = f"{markdown_text}{make_markdown_message(message['name'], message['text'])}"
 
     return markdown_text
 
