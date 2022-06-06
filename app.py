@@ -65,20 +65,14 @@ def get_markdown_text(conversation_thread):
 
     if len(conversation_thread) > 0:
         message = conversation_thread[0]
-        markdown_text += make_markdown_message(
-            message["name"],
-            message["text"],
-        )
+        markdown_text = f'{markdown_text}{(message["name"],message["text"])}'
 
     markdown_text += """
 ---
         """
 
     for message in conversation_thread[1:]:
-        markdown_text += make_markdown_message(
-            message["name"],
-            message["text"]
-        )
+        markdown_text = f'{markdown_text}{(message["name"],message["text"])}'
 
     return markdown_text
 
