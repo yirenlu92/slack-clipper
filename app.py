@@ -142,10 +142,13 @@ from flask import Flask, request
 flask_app = Flask(__name__)
 handler = SlackRequestHandler(app)
 
-
 @flask_app.route("/slack/events", methods=["POST"])
 def slack_events():
     return handler.handle(request)
+
+@flask_app.route("/login", methods=["GET"])
+def login():
+    return "<h1 style='color:blue'>You have successfully logged in!</h1>"
 
 
 # Start your app
