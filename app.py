@@ -29,13 +29,16 @@ def get_conversation_thread(client, channel, ts):
         user_id = message["user"]
         if user_id not in users:
             user_info = client.users_info(user=user_id)
+            # default to display name
+            default_name = user_info["user"].get("name")
             users[user_id] = {
-                "real_name": user_info["user"]["real_name"],
+                # if the full real name exists, use that
+                "name": user_info["user"].get("real_name", default_name)
             }
 
         messages.append({
             "text": message["text"],
-            "name": users[user_id]["real_name"],
+            "name": users[user_id]["name"],
         })
 
         if "files" in message:
